@@ -1,7 +1,11 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.17)
 project(apriltag)
 
 find_package(OpenCV QUIET)
+
+if(MSVC)
+    find_package(pthread REQUIRED)
+endif()
 
 include_directories(.)
 aux_source_directory(common COMMON_SRC)
@@ -10,14 +14,17 @@ set(APRILTAG_SRCS apriltag.c apriltag_pose.c apriltag_quad_thresh.c)
 set(CMAKE_BUILD_TYPE Release)
 
 # Library
-file(GLOB TAG_FILES ${CMAKE_SOURCE_DIR}/tag*.c)
+file(GLOB TAG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tag*.c)
 set_source_files_properties(SOURCE ${TAG_FILES} PROPERTIES COMPILE_FLAGS -O0)
 add_library(${PROJECT_NAME} SHARED ${APRILTAG_SRCS} ${COMMON_SRC} ${TAG_FILES})
 if (MSVC)
     # FindThreads will not find pthread.h with MSVC
     # winmm is necessary for __imp_timeGetTime
-    find_library(PTHREAD_LIBRARIES NAMES pthreads)
-    target_link_libraries(${PROJECT_NAME} ${PTHREAD_LIBRARIES} winmm)
+    #find_library(PTHREAD_LIBRARIES NAMES pthreads)
+    message("PTHREAD_INCLUDE_DIR: " ${PTHREAD_INCLUDE_DIR})
+    message("PTHREADLIBS: " ${PTHREAD_LIBRARIES})
+    target_include_directories(${PROJECT_NAME} PUBLIC ${PTHREAD_INCLUDE_DIR})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${PTHREAD_LIBRARIES} winmm)
 else()
     find_package(Threads REQUIRED)
     target_link_libraries(${PROJECT_NAME} Threads::Threads m)
@@ -99,17 +106,17 @@ endif (NOT Python3_NOT_FOUND AND NOT Numpy_NOT_FOUND AND PYTHONLIBS_FOUND)
 
 # Examples
 # apriltag_demo
-add_executable(apriltag_demo example/apriltag_demo.c)
-target_link_libraries(apriltag_demo apriltag)
+# add_executable(apriltag_demo example/apriltag_demo.c)
+# target_link_libraries(apriltag_demo apriltag)
 
-# opencv_demo
-if(OpenCV_FOUND)
-    add_executable(opencv_demo example/opencv_demo.cc)
-    target_link_libraries(opencv_demo apriltag ${OpenCV_LIBRARIES})
-    set_target_properties(opencv_demo PROPERTIES CXX_STANDARD 11)
-    install(TARGETS opencv_demo RUNTIME DESTINATION bin)
-endif(OpenCV_FOUND)
+# # opencv_demo
+# if(OpenCV_FOUND)
+#     add_executable(opencv_demo example/opencv_demo.cc)
+#     target_link_libraries(opencv_demo apriltag ${OpenCV_LIBRARIES})
+#     #set_target_properties(opencv_demo PROPERTIES CXX_STANDARD 11)
+#     install(TARGETS opencv_demo RUNTIME DESTINATION bin)
+# endif(OpenCV_FOUND)
 
-# install example programs
-install(TARGETS apriltag_demo RUNTIME DESTINATION bin)
+# # install example programs
+# install(TARGETS apriltag_demo RUNTIME DESTINATION bin)
 
