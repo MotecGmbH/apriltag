@@ -10,7 +10,7 @@ set(APRILTAG_SRCS apriltag.c apriltag_pose.c apriltag_quad_thresh.c)
 set(CMAKE_BUILD_TYPE Release)
 
 # Library
-file(GLOB TAG_FILES ${CMAKE_SOURCE_DIR}/tag*.c)
+file(GLOB TAG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tag*.c)
 set_source_files_properties(SOURCE ${TAG_FILES} PROPERTIES COMPILE_FLAGS -O0)
 add_library(${PROJECT_NAME} SHARED ${APRILTAG_SRCS} ${COMMON_SRC} ${TAG_FILES})
 if (MSVC)
@@ -44,7 +44,7 @@ install(TARGETS ${PROJECT_NAME} EXPORT apriltag
 )
 
 # install header file hierarchy
-file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_SOURCE_DIR} *.h)
+file(GLOB_RECURSE HEADER_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
 foreach(HEADER ${HEADER_FILES})
     string(REGEX MATCH "(.*)[/\\]" DIR ${HEADER})
     install(FILES ${HEADER} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${DIR})
@@ -63,6 +63,7 @@ install(FILES "${PROJECT_BINARY_DIR}/apriltag.pc" DESTINATION "lib/pkgconfig/")
 
 
 # Python wrapper
+#[[
 SET(Python_ADDITIONAL_VERSIONS 3)
 find_package(PythonLibs)
 execute_process(COMMAND which python3 OUTPUT_QUIET RESULT_VARIABLE Python3_NOT_FOUND)
@@ -112,4 +113,4 @@ endif(OpenCV_FOUND)
 
 # install example programs
 install(TARGETS apriltag_demo RUNTIME DESTINATION bin)
-
+]]
