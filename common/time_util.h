@@ -37,8 +37,8 @@ typedef long long suseconds_t;
 
 inline int gettimeofday(struct timeval* tp, void* tzp)
 {
-  unsigned long t;
-  t = timeGetTime();
+  unsigned long t = 0;
+  //t = timeGetTime();
   tp->tv_sec = t / 1000;
   tp->tv_usec = t % 1000;
   return 0;
